@@ -2,7 +2,7 @@ local QBCore = exports['qb-core']:GetCoreObject()
 local Balance = 0
 local location = {}
 
-RegisterNetEvent('ik-blackmarket:server:RandomLocation', function()
+RegisterNetEvent('dc-blackmarket:server:RandomLocation', function()
     for k, v in pairs(Config.Locations) do
         if v["products"] == nil then
             print("Config.Locations['"..k.."'] can't find its product table")
@@ -22,20 +22,20 @@ if Config.UseTimer then
             Wait(60000)
             minutes = minutes - 1
             if minutes == 0 then
-                TriggerEvent('ik-blackmarket:server:RandomLocation')
-                TriggerClientEvent("ik-blackmarket:client:removeall", -1)
-                TriggerClientEvent('ik-blackmarket:client:CreatePed', -1)
+                TriggerEvent('dc-blackmarket:server:RandomLocation')
+                TriggerClientEvent("dc-blackmarket:client:removeall", -1)
+                TriggerClientEvent('dc-blackmarket:client:CreatePed', -1)
                 minutes = Config.ChangeLocationTime
             end
         end
     end)
 end
 
-QBCore.Functions.CreateCallback("ik-blackmarket:server:PedLocation", function (_, cb)
+QBCore.Functions.CreateCallback("dc-blackmarket:server:PedLocation", function (_, cb)
     cb(location)
 end)
 
-QBCore.Functions.CreateCallback("ik-blackmarket:server:GetBMLocation", function (_, cb)
+QBCore.Functions.CreateCallback("dc-blackmarket:server:GetBMLocation", function (_, cb)
     cb(location)
 end)
 
@@ -115,7 +115,7 @@ end
 
 -- ##### Events ##### --
 
-RegisterServerEvent('ik-blackmarket:GetItem', function(amount, billtype, item, shoptable, price, removeitem)
+RegisterServerEvent('dc-blackmarket:GetItem', function(amount, billtype, item, shoptable, price, removeitem)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     local BlackMoneyName = Config.BlackMoneyName
@@ -150,7 +150,7 @@ RegisterServerEvent('ik-blackmarket:GetItem', function(amount, billtype, item, s
     data.shoptable = shoptable
     custom = true
     if removeitem == nil and not Config.RemoveItem then
-        TriggerClientEvent('ik-blackmarket:ShopMenu', src, data, custom)
+        TriggerClientEvent('dc-blackmarket:ShopMenu', src, data, custom)
         Player.Functions.AddItem(Config.ItemName, 1)
     end
 end)
@@ -176,7 +176,7 @@ AddEventHandler('onResourceStart', function(resource)
     end
 end)
 
-RegisterNetEvent('ik-blackmarket:server:AddRemoveItem', function (action)
+RegisterNetEvent('dc-blackmarket:server:AddRemoveItem', function (action)
     local Player = QBCore.Functions.GetPlayer(source)
     if action == 'add' then
         Player.Functions.AddItem(Config.ItemName, 1)
@@ -186,12 +186,12 @@ RegisterNetEvent('ik-blackmarket:server:AddRemoveItem', function (action)
     end
 end)
 
-RegisterNetEvent("ik-blackmarket:server:callCops", function(coords)
+RegisterNetEvent("dc-blackmarket:server:callCops", function(coords)
     local alertData = {
         title = "10-33 | Shop Robbery",
         coords = {x = coords.x, y = coords.y, z = coords.z},
         description = "Someone Is WireTapping Phonecalls!"
     }
-    TriggerClientEvent("ik-blackmarket:client:wiretappingCall", -1, coords)
+    TriggerClientEvent("dc-blackmarket:client:wiretappingCall", -1, coords)
     TriggerClientEvent("qb-phone:client:addPoliceAlert", -1, alertData)
 end)
