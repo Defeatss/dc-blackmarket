@@ -28,8 +28,8 @@ local function shuffled_range_take (n, a, b)
     return { table.unpack(numbers, 1, n) }
 end
 
-RegisterNetEvent('ik-blackmarket:client:CreatePed', function ()
-    QBCore.Functions.TriggerCallback('ik-blackmarket:server:PedLocation', function(data)
+RegisterNetEvent('dc-blackmarket:client:CreatePed', function ()
+    QBCore.Functions.TriggerCallback('dc-blackmarket:server:PedLocation', function(data)
         local bm = data.bm
         loc = data.loc
         local sdata = data.data
@@ -58,7 +58,7 @@ RegisterNetEvent('ik-blackmarket:client:CreatePed', function ()
         if Config.Debug then print("Ped Created for Shop - ['"..bm.."("..loc..")']") end
 
         if Config.Debug then print("Shop - ['"..bm.."("..loc..")']") end
-        exports['qb-target']:AddCircleZone("['"..bm.."("..loc..")']", vector3(sdata["coords"][loc].x, sdata["coords"][loc].y, sdata["coords"][loc].z), 2.0, { name="['"..bm.."("..loc..")']", debugPoly=Config.Debug, useZ=true, },{ options = { { event = "ik-blackmarket:ShopMenu", icon = "fas fa-certificate", label = Lang:t("target.browse"),item = (sdata.openwith or nil),gang = (sdata.gang or nil), shoptable = sdata, products = productstable, name = sdata["label"], k = bm, l = loc, }, }, distance = 2.0 })
+        exports['qb-target']:AddCircleZone("['"..bm.."("..loc..")']", vector3(sdata["coords"][loc].x, sdata["coords"][loc].y, sdata["coords"][loc].z), 2.0, { name="['"..bm.."("..loc..")']", debugPoly=Config.Debug, useZ=true, },{ options = { { event = "dc-blackmarket:ShopMenu", icon = "fas fa-certificate", label = Lang:t("target.browse"),item = (sdata.openwith or nil),gang = (sdata.gang or nil), shoptable = sdata, products = productstable, name = sdata["label"], k = bm, l = loc, }, }, distance = 2.0 })
     end)
 end)
 
@@ -79,7 +79,7 @@ local function mainthread()
         end
         if Config.RandomLocation then
             Wait(500)
-            TriggerEvent('ik-blackmarket:client:CreatePed')
+            TriggerEvent('dc-blackmarket:client:CreatePed')
         else
             for l, b in pairs(v["coords"]) do -- Create ped for each location given in Config
                 if not v["hideblip"] then -- Create blip if set to false
@@ -107,25 +107,25 @@ local function mainthread()
                 if Config.Debug then print("Ped Created for Shop - ['"..k.."("..l..")']") end
 
                 if Config.Debug then print("Shop - ['"..k.."("..l..")']") end
-                exports['qb-target']:AddCircleZone("Shop - ['"..k.."("..l..")']", vector3(b.x, b.y, b.z), 2.0, { name="Shop - ['"..k.."("..l..")']", debugPoly=Config.Debug, useZ=true, },{ options = { { event = "ik-blackmarket:ShopMenu", icon = "fas fa-certificate", label = Lang:t("target.browse"), item = (v.openwith or nil),gang = (v.gang or nil), shoptable = v, products = productstable, name = v["label"], k = k, l = l, }, }, distance = 2.0 })
+                exports['qb-target']:AddCircleZone("Shop - ['"..k.."("..l..")']", vector3(b.x, b.y, b.z), 2.0, { name="Shop - ['"..k.."("..l..")']", debugPoly=Config.Debug, useZ=true, },{ options = { { event = "dc-blackmarket:ShopMenu", icon = "fas fa-certificate", label = Lang:t("target.browse"), item = (v.openwith or nil),gang = (v.gang or nil), shoptable = v, products = productstable, name = v["label"], k = k, l = l, }, }, distance = 2.0 })
             end
         end
     end
 end
 
-RegisterNetEvent('ik-blackmarket:ShopMenu', function(data, custom)
+RegisterNetEvent('dc-blackmarket:ShopMenu', function(data, custom)
     local products = data.products
     rmi = data.item
     local ShopMenu = {}
     local hasLicense, hasLicenseItem = nil
 
     if rmi then
-        TriggerServerEvent('ik-blackmarket:server:AddRemoveItem', 'remove')
+        TriggerServerEvent('dc-blackmarket:server:AddRemoveItem', 'remove')
         inmenu = true
     end
 
     ShopMenu[#ShopMenu + 1] = { header = data.shoptable["label"], txt = "", isMenuHeader = true }
-    ShopMenu[#ShopMenu + 1] = { header = "", txt = Lang:t("menu.close"), params = { event = "ik-blackmarket:CloseMenu" } }
+    ShopMenu[#ShopMenu + 1] = { header = "", txt = Lang:t("menu.close"), params = { event = "dc-blackmarket:CloseMenu" } }
 
     for i = 1, #products do
         local amount = nil
@@ -151,17 +151,17 @@ RegisterNetEvent('ik-blackmarket:ShopMenu', function(data, custom)
             for i2 = 1, #products[i].requiredJob do
                 if QBCore.Functions.GetPlayerData().job.name == products[i].requiredJob[i2] then
                     ShopMenu[#ShopMenu + 1] = { icon = products[i].name, header = setheader, txt = text, isMenuHeader = lock,
-                        params = { event = "ik-blackmarket:Charge", args = { item = products[i].name, cost = totalprice, info = products[i].info, shoptable = data.shoptable, k = data.k, l = data.l, amount = amount, custom = custom, rem = rmi} } }
+                        params = { event = "dc-blackmarket:Charge", args = { item = products[i].name, cost = totalprice, info = products[i].info, shoptable = data.shoptable, k = data.k, l = data.l, amount = amount, custom = custom, rem = rmi} } }
                 end
             end
         elseif products[i].requiresLicense then
             if hasLicense and hasLicenseItem then
             ShopMenu[#ShopMenu + 1] = { icon = products[i].name, header = setheader, txt = text, isMenuHeader = lock,
-                    params = { event = "ik-blackmarket:Charge", args = { item = products[i].name, cost = totalprice, info = products[i].info, shoptable = data.shoptable, k = data.k, l = data.l, amount = amount, custom = custom, rem = rmi} } }
+                    params = { event = "dc-blackmarket:Charge", args = { item = products[i].name, cost = totalprice, info = products[i].info, shoptable = data.shoptable, k = data.k, l = data.l, amount = amount, custom = custom, rem = rmi} } }
             end
         else
             ShopMenu[#ShopMenu + 1] = { icon = products[i].name, header = setheader, txt = text, isMenuHeader = lock,
-                    params = { event = "ik-blackmarket:Charge", args = { item = products[i].name, cost = totalprice, info = products[i].info, shoptable = products, k = data.k, l = data.l, amount = amount, custom = custom, rem = rmi} } }
+                    params = { event = "dc-blackmarket:Charge", args = { item = products[i].name, cost = totalprice, info = products[i].info, shoptable = products, k = data.k, l = data.l, amount = amount, custom = custom, rem = rmi} } }
         end
         text, setheader = nil
     end
@@ -170,14 +170,14 @@ end)
 
 AddEventHandler('qb-menu:client:closeMenu', function()
     if rmi and inmenu then
-        TriggerServerEvent('ik-blackmarket:server:AddRemoveItem', 'add')
+        TriggerServerEvent('dc-blackmarket:server:AddRemoveItem', 'add')
         inmenu = false
     end
 end)
 
-RegisterNetEvent('ik-blackmarket:CloseMenu', function() exports['qb-menu']:closeMenu() end)
+RegisterNetEvent('dc-blackmarket:CloseMenu', function() exports['qb-menu']:closeMenu() end)
 
-RegisterNetEvent('ik-blackmarket:Charge', function(data)
+RegisterNetEvent('dc-blackmarket:Charge', function(data)
     if data.cost == "Free" then price = data.cost else if Config.Payment == "crypto" then price = "₿"..data.cost else price = "$"..data.cost end end
     if QBCore.Shared.Items[data.item].weight == 0 then weight = "" else weight = Lang:t("menu.weight").." "..(QBCore.Shared.Items[data.item].weight / 1000)..Config.Measurement end
     local settext = "- "..Lang:t("menu.confirm").." -<br><br>"
@@ -198,9 +198,9 @@ RegisterNetEvent('ik-blackmarket:Charge', function(data)
     local dialog = exports['qb-input']:ShowInput({ header = header, submitText = Lang:t("menu.submittext"), inputs = newinputs })
     if dialog then
         if not dialog.amount then return end
-        if tonumber(dialog.amount) <= 0 then TriggerEvent("QBCore:Notify", Lang:t("error.incorrect_amount"), "error") TriggerEvent("ik-blackmarket:Charge", data) return end
+        if tonumber(dialog.amount) <= 0 then TriggerEvent("QBCore:Notify", Lang:t("error.incorrect_amount"), "error") TriggerEvent("dc-blackmarket:Charge", data) return end
         if data.cost == "Free" then data.cost = 0 end
-        TriggerServerEvent('ik-blackmarket:GetItem', dialog.amount, dialog.billtype, data.item, data.shoptable, data.cost, data.rem)
+        TriggerServerEvent('dc-blackmarket:GetItem', dialog.amount, dialog.billtype, data.item, data.shoptable, data.cost, data.rem)
         RequestAnimDict('amb@prop_human_atm@male@enter')
         while not HasAnimDictLoaded('amb@prop_human_atm@male@enter') do Wait(1) end
         if HasAnimDictLoaded('amb@prop_human_atm@male@enter') then TaskPlayAnim(PlayerPedId(), 'amb@prop_human_atm@male@enter', "enter", 1.0,-1.0, 1500, 1, 1, true, true, true) end
@@ -210,7 +210,7 @@ end)
 
 AddEventHandler('qb-input:client:closeMenu', function()
     if rmi and inmenu then
-        TriggerServerEvent('ik-blackmarket:server:AddRemoveItem', 'add')
+        TriggerServerEvent('dc-blackmarket:server:AddRemoveItem', 'add')
         inmenu = false
     end
 end)
@@ -237,7 +237,7 @@ if Config.EnableHacking then
                             anim = 'hotwire',
                             flags = 16,
                         }, {}, {}, function() -- Play When Done
-                            TriggerEvent("ik-blackmarket:client:HackSuccess")
+                            TriggerEvent("dc-blackmarket:client:HackSuccess")
                         end, function() -- Play When Cancel
                             --Stuff goes here
                         end)
@@ -258,7 +258,7 @@ if Config.EnableHacking then
     local function SendDispatch()
         if Config.Dispatch == "qbcore" then
             local pos = GetEntityCoords(PlayerPedId())
-            TriggerServerEvent("ik-blackmarket:server:callCops", pos)
+            TriggerServerEvent("dc-blackmarket:server:callCops", pos)
         end
     end
 
@@ -267,11 +267,11 @@ if Config.EnableHacking then
             SendDispatch()
             QBCore.Functions.Notify('You fucked up, RUN !', 'error', 7500)
         else
-            TriggerEvent("ik-blackmarket:client:GetLocation")
+            TriggerEvent("dc-blackmarket:client:GetLocation")
         end
     end
 
-    RegisterNetEvent("ik-blackmarket:client:CreateBMBlip", function(coords)
+    RegisterNetEvent("dc-blackmarket:client:CreateBMBlip", function(coords)
         local transG = 250
         local blip = AddBlipForCoord(coords.x, coords.y, coords.z)
         SetBlipSprite(blip, 458)
@@ -294,7 +294,7 @@ if Config.EnableHacking then
         end
     end)
 
-    RegisterNetEvent("ik-blackmarket:client:HackSuccess", function() 
+    RegisterNetEvent("dc-blackmarket:client:HackSuccess", function() 
         QBCore.Functions.Notify('Successfully hacked into phone connection.', 'success', 7500)
         if Config.Minigame == "keyminigame" then
             TriggerEvent('qb-keyminigame:show')
@@ -304,20 +304,20 @@ if Config.EnableHacking then
             if not success then
                 SendDispatch()
             else
-                TriggerEvent("ik-blackmarket:client:GetLocation")
+                TriggerEvent("dc-blackmarket:client:GetLocation")
             end
         end
     end)
 
-    RegisterNetEvent("ik-blackmarket:client:GetLocation", function() 
+    RegisterNetEvent("dc-blackmarket:client:GetLocation", function() 
         QBCore.Functions.Notify('You will get the location now', 'success', 7500)
         if Config.RandomLocation then
-            QBCore.Functions.TriggerCallback('ik-blackmarket:server:GetBMLocation', function(data)
+            QBCore.Functions.TriggerCallback('dc-blackmarket:server:GetBMLocation', function(data)
                 QBCore.Debug(data)
                 local loc = Config.Locations[data.bm].coords[data.loc]
                 local locv3 = vector3(loc.x, loc.y, loc.z)
                 print(locv3)
-                TriggerEvent("ik-blackmarket:client:CreateBMBlip", locv3)
+                TriggerEvent("dc-blackmarket:client:CreateBMBlip", locv3)
             end)
         else
             local bmlocnum = 0
@@ -331,11 +331,11 @@ if Config.EnableHacking then
             local loc = Config.Locations[bmname].coords[bmlocnum]
             local locv3 = vector3(loc.x, loc.y, loc.z)
             print(locv3)
-            TriggerEvent("ik-blackmarket:client:CreateBMBlip", locv3)
+            TriggerEvent("dc-blackmarket:client:CreateBMBlip", locv3)
         end
     end)
 
-    RegisterNetEvent("ik-blackmarket:client:wiretappingCall", function(coords)
+    RegisterNetEvent("dc-blackmarket:client:wiretappingCall", function(coords)
         local job = QBCore.Functions.GetPlayerData().job
         if job.name == "police" and job.onduty then
             PlaySound(-1, "Lose_1st", "GTAO_FM_Events_Soundset", 0, 0, 1)
@@ -402,7 +402,7 @@ if Config.EnableHacking then
     end
 end
 
-RegisterNetEvent("ik-blackmarket:client:removeall",function()
+RegisterNetEvent("dc-blackmarket:client:removeall",function()
     for k, v in pairs(Config.Locations) do
         if Config.RandomLocation then
             exports['qb-target']:RemoveZone("['"..k.."("..loc..")']")
@@ -421,5 +421,5 @@ CreateThread(function()
 end)
 
 AddEventHandler('onResourceStop', function(resource) if resource ~= GetCurrentResourceName() then return end
-    TriggerEvent("ik-blackmarket:client:removeall")
+    TriggerEvent("dc-blackmarket:client:removeall")
 end)
